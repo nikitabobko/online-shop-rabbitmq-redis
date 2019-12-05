@@ -1,7 +1,5 @@
 plugins {
   java
-
-  application
 }
 
 repositories {
@@ -15,6 +13,16 @@ dependencies {
   testImplementation("junit:junit:4.12")
 }
 
-application {
-  mainClassName = "ru.bobko.shop.App"
+task("runBackend", type=JavaExec::class) {
+  group = "Application"
+  description = "Runs backend"
+  classpath = sourceSets["main"].runtimeClasspath
+  main = "ru.bobko.shop.backend.Main"
+}
+
+task("runFrontend", type=JavaExec::class) {
+  group = "Application"
+  description = "Runs frontend"
+  classpath = sourceSets["main"].runtimeClasspath
+  main = "ru.bobko.shop.frontend.cli.Main"
 }
