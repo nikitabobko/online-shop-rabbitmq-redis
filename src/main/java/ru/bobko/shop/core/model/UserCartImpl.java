@@ -1,10 +1,17 @@
 package ru.bobko.shop.core.model;
 
+import redis.clients.jedis.commands.JedisCommands;
 import ru.bobko.shop.core.model.good.Good;
 
-import java.util.List;
+import java.util.Map;
 
 public class UserCartImpl implements UserCart {
+  private final JedisCommands jedis;
+
+  public UserCartImpl(JedisCommands jedis) {
+    this.jedis = jedis;
+  }
+
   @Override
   public void add(Good good) {
 
@@ -26,7 +33,7 @@ public class UserCartImpl implements UserCart {
   }
 
   @Override
-  public List<Good> getCurrentGoodsInCart() {
+  public Map<Good, Integer> getCurrentGoodsInCart() {
     return null;
   }
 }
