@@ -17,12 +17,14 @@ task("runBackend", type=JavaExec::class) {
   group = "Application"
   description = "Runs backend"
   classpath = sourceSets["main"].runtimeClasspath
+  standardInput = System.`in`
   main = "ru.bobko.shop.backend.Main"
 }
 
 task("runFrontend", type=JavaExec::class) {
   group = "Application"
+  standardInput = System.`in`
   description = "Runs frontend"
   classpath = sourceSets["main"].runtimeClasspath
-  main = "ru.bobko.shop.frontend.cli.Main"
+  main = "ru.bobko.shop.frontend.cli.FrontendMain"
 }
