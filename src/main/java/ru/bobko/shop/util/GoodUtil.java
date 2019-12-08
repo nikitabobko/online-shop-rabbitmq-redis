@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public enum CollectionUtil {
+public enum GoodUtil {
   ;
 
   public static String toString(Map<Good, Integer> goods) {

@@ -46,7 +46,14 @@ public class FrontendUserCart implements UserCart {
 
   @Override
   public Map<Good, Integer> buy() {
-    return null;
+    return reactServerDoesntRespondOnInterruptedException(() -> {
+      Message request = Message.newRequest(Message.Type.BUY, getClientId(), null);
+      Message response = manager.requestResponseCycle(request);
+      if (response.status != Message.Status.OK) {
+        throw new CliException(response.additionalMsgNullable);
+      }
+      return GsonUtil.decodeGoodsMap(Objects.requireNonNull(response.additionalMsgNullable));
+    });
   }
 
   @Override

@@ -134,6 +134,12 @@ public final class Message {
         UserCart userCart = users.getOrRegisterUserById(request.clientId);
         request.respondOk(GsonUtil.encodeGoodsMap(userCart.getCurrentGoodsInCart())).sendTo(channel, request.clientId);
       }
+    }, BUY {
+      @Override
+      public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
+        UserCart user = users.getOrRegisterUserById(request.clientId);
+        request.respondOk(GsonUtil.encodeGoodsMap(user.buy())).sendTo(channel, request.clientId);
+      }
     };
 
     public abstract void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException;

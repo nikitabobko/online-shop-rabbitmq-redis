@@ -6,7 +6,7 @@ import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.frontend.cli.base.CliCommand;
 import ru.bobko.shop.frontend.cli.base.CliCommandAction;
-import ru.bobko.shop.util.CollectionUtil;
+import ru.bobko.shop.util.GoodUtil;
 
 import java.util.Map;
 
@@ -41,6 +41,6 @@ public enum ShowCartCliCommand implements CliCommand, CliCommandAction {
     if (inCart.isEmpty()) {
       return "Cart is empty";
     }
-    return CollectionUtil.toString(inCart);
+    return GoodUtil.toString(inCart);
   }
 }

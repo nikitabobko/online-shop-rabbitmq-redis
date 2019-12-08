@@ -55,7 +55,15 @@ public class BackendUserCart implements UserCart {
 
   @Override
   public Map<Good, Integer> buy() {
-    return null;
+    Map<Good, Integer> goods = getCurrentGoodsInCart();
+    for (Good good : goods.keySet()) {
+      int amount = warehouse.amountOf(good);
+      if (amount == 0) {
+        warehouse.clearGood(good);
+      }
+    }
+    jedis.del(CURRENT_GOODS_IN_CART_REDIS_KEY + ":" + clientId);
+    return goods;
   }
 
   @Override
