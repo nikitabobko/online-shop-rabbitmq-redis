@@ -41,8 +41,7 @@ public class BackendWarehouse implements Warehouse {
     if (members == null) {
       return Collections.emptyMap();
     }
-    List<Good> goods = members.stream()
-      .map(this::getGoodByVendorCodeNullable).collect(toList());
+    List<Good> goods = members.stream().map(this::getGoodByVendorCodeNullable).collect(toList());
     assert goods.stream().allMatch(Objects::nonNull);
     return goods.stream().collect(Collectors.toMap(Function.identity(), this::amountOf));
   }
@@ -83,5 +82,10 @@ public class BackendWarehouse implements Warehouse {
   @Override
   public Set<String> getCategories() {
     return getAll().keySet().stream().flatMap(it -> it.categories.stream()).collect(toSet());
+  }
+
+  @Override
+  public Set<Good> showCategory(String categoryName) {
+    return getAll().keySet().stream().filter(it -> it.categories.contains(categoryName)).collect(toSet());
   }
 }
