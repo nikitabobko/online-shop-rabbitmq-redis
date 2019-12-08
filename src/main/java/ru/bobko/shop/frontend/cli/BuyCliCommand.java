@@ -2,7 +2,7 @@ package ru.bobko.shop.frontend.cli;
 
 import ru.bobko.shop.core.di.Injector;
 import ru.bobko.shop.core.di.InjectorHolder;
-import ru.bobko.shop.core.model.Warehouse;
+import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.frontend.cli.base.CliCommand;
 import ru.bobko.shop.frontend.cli.base.CliCommandAction;
@@ -10,17 +10,17 @@ import ru.bobko.shop.util.GoodUtil;
 
 import java.util.Map;
 
-public enum  ShowAllCliCommand implements CliCommand, CliCommandAction {
+public enum BuyCliCommand implements CliCommand, CliCommandAction {
   INSTANCE;
 
   @Override
   public String getCommandName() {
-    return "show_all";
+    return "buy";
   }
 
   @Override
   public String getDescription() {
-    return "Shows all available goods";
+    return "Buys current cart";
   }
 
   @Override
@@ -36,11 +36,11 @@ public enum  ShowAllCliCommand implements CliCommand, CliCommandAction {
   @Override
   public String execAndGetOutput() {
     Injector injector = InjectorHolder.getInjector();
-    Warehouse warehouse = injector.getWarehouse();
-    Map<Good, Integer> all = warehouse.getAll();
-    if (all.isEmpty()) {
-      return "No more goods left :(";
+    UserCart cart = injector.getCart();
+    Map<Good, Integer> bought = cart.buy();
+    if (bought.isEmpty()) {
+      return "Cart is empty";
     }
-    return GoodUtil.toString(all);
+    return "Congrats! You bought:\n\n" + GoodUtil.toString(bought);
   }
 }

@@ -1,9 +1,6 @@
 package ru.bobko.shop.frontend.cli.base;
 
-import ru.bobko.shop.frontend.cli.AddToCartCliCommand;
-import ru.bobko.shop.frontend.cli.RemoveFromCartCliCommand;
-import ru.bobko.shop.frontend.cli.ShowAllCliCommand;
-import ru.bobko.shop.frontend.cli.ShowCartCliCommand;
+import ru.bobko.shop.frontend.cli.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +12,7 @@ public interface CliCommand {
     AddToCartCliCommand.INSTANCE,
     RemoveFromCartCliCommand.INSTANCE,
     ShowCartCliCommand.INSTANCE,
+    BuyCliCommand.INSTANCE,
     ShowAllCliCommand.INSTANCE,
     HelpCliCommand.INSTANCE
   );
