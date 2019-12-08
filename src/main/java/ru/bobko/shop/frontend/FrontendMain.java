@@ -7,7 +7,6 @@ import ru.bobko.shop.core.model.message.Message;
 import ru.bobko.shop.frontend.cli.base.CliCommand;
 import ru.bobko.shop.frontend.cli.base.CliException;
 import ru.bobko.shop.frontend.di.FrontendInjector;
-import ru.bobko.shop.util.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class FrontendMain {
         System.out.print("> ");
         System.out.flush();
         String line = reader.readLine();
-        if (StringUtil.isEmpty(line)) {
+        if (line == null || "".equals(line)) {
           break;
         }
         try {

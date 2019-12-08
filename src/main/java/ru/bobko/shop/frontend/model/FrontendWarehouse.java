@@ -12,9 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 import static ru.bobko.shop.util.FrontendModelUtil.reactServerDoesntRespondOnInterruptedException;
 
 public class FrontendWarehouse implements Warehouse {
