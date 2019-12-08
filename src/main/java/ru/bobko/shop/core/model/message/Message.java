@@ -98,7 +98,14 @@ public final class Message {
     }, REM_FROM_CART {
       @Override
       public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
-
+        UserCart cart = users.getOrRegisterUserById(request.clientId);
+        Good good = warehouse.getGoodByVendorCodeNullable(request.additionalMsgNullable);
+        if (good == null) {
+          request.respondNo("Unknown vendor_code").sendTo(channel, request.clientId);
+          return;
+        }
+        Message response = cart.removeFromCart(good) ? request.respondOk() : request.respondNo("Cannot remove good from cart");
+        response.sendTo(channel, request.clientId);
       }
     }, HEARTH_BEAT {
       @Override
