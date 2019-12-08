@@ -31,7 +31,7 @@ public class BackendMain {
   private static void fillWarehouse(Warehouse warehouse) {
     warehouse.addGood(new Good("apple-421", "Apple", 10, setOf("Food")), 100);
     warehouse.addGood(new Good("limon-3141", "Limon", 10, setOf("Food")), 20);
-    warehouse.addGood(new Good("elon-musk-truck-445", "Cybertruck", 39000, setOf("Cars", "Trucks")), 1);
+    warehouse.addGood(new Good("elon-musk-truck-445", "Cybertruck", 39000, setOf("Cars", "Truck")), 1);
   }
 
   private static Set<String> setOf(String... members) {

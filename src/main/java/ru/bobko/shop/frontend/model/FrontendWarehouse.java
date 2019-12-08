@@ -36,7 +36,7 @@ public class FrontendWarehouse implements Warehouse {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.GET_GOOD_BY_VENDOR_CODE, clientId, vendorCode);
       Message response = manager.requestResponseCycle(request);
-      if (response.status == Message.Status.NO) {
+      if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
       Objects.requireNonNull(response.additionalMsgNullable);
@@ -51,7 +51,7 @@ public class FrontendWarehouse implements Warehouse {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.SHOW_ALL, clientId, null);
       Message response = manager.requestResponseCycle(request);
-      if (response.status == Message.Status.NO) {
+      if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
       return GsonUtil.decodeGoodsMap(response.additionalMsgNullable);
@@ -83,10 +83,25 @@ public class FrontendWarehouse implements Warehouse {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.LIST_CATEGORIES, clientId, null);
       Message response = manager.requestResponseCycle(request);
-      if (response.status == Message.Status.NO) {
+      if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
       return new Gson().<Set<String>>fromJson(response.additionalMsgNullable, Set.class);
+    });
+  }
+
+  @Override
+  public Set<Good> showCategory(String categoryName) {
+    return reactServerDoesntRespondOnInterruptedException(() -> {
+      Message request = Message.newRequest(Message.Type.SHOW_CATEGORY, clientId, categoryName);
+      Message response = manager.requestResponseCycle(request);
+      if (response.status != Message.Status.OK) {
+        throw new CliException(response.additionalMsgNullable);
+      }
+      Gson gson = new Gson();
+      return gson.<Set<String>>fromJson(response.additionalMsgNullable, Set.class).stream()
+        .map(it -> gson.fromJson(it, Good.class))
+        .collect(toSet());
     });
   }
 }

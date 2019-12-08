@@ -13,4 +13,5 @@ public interface Warehouse {
   void addGood(Good good, int count);
   void clearGood(Good good);
   Set<String> getCategories();
+  Set<Good> showCategory(String categoryName);
 }

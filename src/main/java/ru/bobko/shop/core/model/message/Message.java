@@ -11,7 +11,10 @@ import ru.bobko.shop.util.GsonUtil;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Thread safe
@@ -151,6 +154,15 @@ public final class Message {
       @Override
       public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
         request.respondOk(new Gson().toJson(warehouse.getCategories())).sendTo(channel, request.clientId);
+      }
+    }, SHOW_CATEGORY {
+      @Override
+      public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
+        Gson gson = new Gson();
+        Set<String> selectedCategory = warehouse.showCategory(request.additionalMsgNullable).stream()
+          .map(gson::toJson)
+          .collect(toSet());
+        request.respondOk(gson.toJson(selectedCategory)).sendTo(channel, request.clientId);
       }
     };
 
