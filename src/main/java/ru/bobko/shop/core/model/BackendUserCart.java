@@ -5,9 +5,8 @@ import ru.bobko.shop.core.model.good.Good;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
 
 public class BackendUserCart implements UserCart {
   private final Jedis jedis;
@@ -42,7 +41,16 @@ public class BackendUserCart implements UserCart {
 
   @Override
   public boolean removeFromCart(Good good) {
-    return false;
+    int amount = warehouse.amountOf(good);
+    warehouse.setAmountOf(good, amount + 1);
+    String hget = jedis.hget(CURRENT_GOODS_IN_CART_REDIS_KEY + ":" + clientId, good.vendorCode);
+    int currentAmount = hget != null ? Integer.parseInt(hget) : 0;
+    if (currentAmount == 1) {
+      jedis.del(CURRENT_GOODS_IN_CART_REDIS_KEY + ":" + clientId);
+    } else {
+      jedis.hset(CURRENT_GOODS_IN_CART_REDIS_KEY + ":" + clientId, good.vendorCode, String.valueOf(currentAmount - 1));
+    }
+    return true;
   }
 
   @Override
