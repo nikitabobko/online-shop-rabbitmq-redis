@@ -58,7 +58,14 @@ public class FrontendUserCart implements UserCart {
 
   @Override
   public void discard() {
-
+    reactServerDoesntRespondOnInterruptedException(() -> {
+      Message request = Message.newRequest(Message.Type.DISCARD, getClientId(), null);
+      Message response = manager.requestResponseCycle(request);
+      if (response.status != Message.Status.OK) {
+        throw new CliException(response.additionalMsgNullable);
+      }
+      return Void.TYPE;
+    });
   }
 
   @Override
