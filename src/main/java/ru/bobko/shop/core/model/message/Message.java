@@ -147,6 +147,11 @@ public final class Message {
         cart.discard();
         request.respondOk().sendTo(channel, request.clientId);
       }
+    }, LIST_CATEGORIES {
+      @Override
+      public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
+        request.respondOk(new Gson().toJson(warehouse.getCategories())).sendTo(channel, request.clientId);
+      }
     };
 
     public abstract void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException;

@@ -3,6 +3,7 @@ package ru.bobko.shop.core.model;
 import ru.bobko.shop.core.model.good.Good;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface Warehouse {
   Good getGoodByVendorCodeNullable(String vendorCode);
@@ -11,4 +12,5 @@ public interface Warehouse {
   void setAmountOf(Good good, int amount);
   void addGood(Good good, int count);
   void clearGood(Good good);
+  Set<String> getCategories();
 }

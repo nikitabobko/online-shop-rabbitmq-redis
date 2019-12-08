@@ -13,6 +13,7 @@ public interface CliCommand {
     RemoveFromCartCliCommand.INSTANCE,
     ShowCartCliCommand.INSTANCE,
     BuyCliCommand.INSTANCE,
+    ListCategoriesCliCommand.INSTANCE,
     DiscardCliCommand.INSTANCE,
     ShowAllCliCommand.INSTANCE,
     HelpCliCommand.INSTANCE
