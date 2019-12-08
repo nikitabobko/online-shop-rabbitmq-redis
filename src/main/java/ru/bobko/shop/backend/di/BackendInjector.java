@@ -26,6 +26,7 @@ public class BackendInjector implements Injector {
     ChannelAndQueueNamePair pair = Injector.initChannel(Message.TO_BACKEND_ROUTING_KEY, rabbitMqMsgConsumer);
     channel = pair.channel;
     Jedis jedis = new Jedis();
+    jedis.flushAll();
     warehouse = new BackendWarehouse(jedis);
     RabbitMqRequestResponseCycleManager rabbitMqManager = new RabbitMqRequestResponseCycleManager(channel);
     manager = RequestResponseCycleManagerWithTimeout.wrap(rabbitMqManager, 30, TimeUnit.SECONDS);
