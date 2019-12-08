@@ -30,7 +30,7 @@ public class FrontendUserCart implements UserCart {
   public boolean add(Good good) {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.ADD_TO_CART, getClientId(), good.vendorCode);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       return response.status == Message.Status.OK;
     });
   }
@@ -39,7 +39,7 @@ public class FrontendUserCart implements UserCart {
   public boolean removeFromCart(Good good) {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.REM_FROM_CART, getClientId(), good.vendorCode);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       return response.status == Message.Status.OK;
     });
   }
@@ -48,7 +48,7 @@ public class FrontendUserCart implements UserCart {
   public Map<Good, Integer> buy() {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.BUY, getClientId(), null);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
@@ -60,7 +60,7 @@ public class FrontendUserCart implements UserCart {
   public void discard() {
     reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.DISCARD, getClientId(), null);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
@@ -72,7 +72,7 @@ public class FrontendUserCart implements UserCart {
   public Map<Good, Integer> getCurrentGoodsInCart() {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.SHOW_CART, getClientId(), null);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }

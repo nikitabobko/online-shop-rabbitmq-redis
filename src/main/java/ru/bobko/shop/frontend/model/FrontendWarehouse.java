@@ -34,7 +34,7 @@ public class FrontendWarehouse implements Warehouse {
     }
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.GET_GOOD_BY_VENDOR_CODE, clientId, vendorCode);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
@@ -49,7 +49,7 @@ public class FrontendWarehouse implements Warehouse {
   public Map<Good, Integer> getAll() {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.SHOW_ALL, clientId, null);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
@@ -81,7 +81,7 @@ public class FrontendWarehouse implements Warehouse {
   public Set<String> getCategories() {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.LIST_CATEGORIES, clientId, null);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }
@@ -93,7 +93,7 @@ public class FrontendWarehouse implements Warehouse {
   public Set<Good> showCategory(String categoryName) {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.SHOW_CATEGORY, clientId, categoryName);
-      Message response = manager.requestResponseCycle(request);
+      Message response = manager.requestResponseCycleToBackend(request);
       if (response.status != Message.Status.OK) {
         throw new CliException(response.additionalMsgNullable);
       }

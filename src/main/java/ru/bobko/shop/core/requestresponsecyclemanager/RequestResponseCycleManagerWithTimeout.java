@@ -22,8 +22,13 @@ public class RequestResponseCycleManagerWithTimeout implements RequestResponseCy
   }
 
   @Override
-  public Message requestResponseCycle(Message request) throws InterruptedException {
-    return ThreadUtil.interruptSupplierIn(time, unit, () -> manager.requestResponseCycle(request));
+  public Message requestResponseCycleToBackend(Message request) throws InterruptedException {
+    return ThreadUtil.interruptSupplierIn(time, unit, () -> manager.requestResponseCycleToBackend(request));
+  }
+
+  @Override
+  public Message requestResponseCycle(String clientId, Message msg) throws InterruptedException {
+    return ThreadUtil.interruptSupplierIn(time, unit, () -> manager.requestResponseCycle(clientId, msg));
   }
 
   public static RequestResponseCycleManager wrap(RequestResponseCycleManager manager, long time, TimeUnit unit) {
