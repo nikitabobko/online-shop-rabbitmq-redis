@@ -51,8 +51,8 @@ public class FrontendMain {
       } catch (IOException e) {
         System.exit(1);
       }
-      return;
+    } else {
+      injector.getRequestResponseCycleManager().notifyResponseCome(message);
     }
-    injector.getRequestResponseCycleManager().notifyResponseCome(message);
   }
 }
