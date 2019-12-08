@@ -19,6 +19,7 @@ public enum ThreadUtil {
     threadWhichInterruptsUs.start();
     T result = supplier.get();
     threadWhichInterruptsUs.interrupt();
+    //noinspection ResultOfMethodCallIgnored
     Thread.interrupted();
     return result;
   }

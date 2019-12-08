@@ -24,4 +24,15 @@ public class Good {
   public static Good fromJson(String json) {
     return new Gson().fromJson(json, Good.class);
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("Good{");
+    sb.append("vendorCode='").append(vendorCode).append('\'');
+    sb.append(", name='").append(name).append('\'');
+    sb.append(", price=").append(price);
+    sb.append(", categories=").append(categories);
+    sb.append('}');
+    return sb.toString();
+  }
 }

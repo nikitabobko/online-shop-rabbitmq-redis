@@ -9,6 +9,7 @@ import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -116,7 +117,8 @@ public final class Message {
     }, SHOW_ALL {
       @Override
       public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
-
+        Map<Good, Integer> all = warehouse.getAll();
+        request.respondOk(new Gson().toJson(all)).sendTo(channel, request.clientId);
       }
     };
 
