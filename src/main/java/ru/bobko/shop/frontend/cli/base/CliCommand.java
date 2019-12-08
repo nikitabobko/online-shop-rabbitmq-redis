@@ -1,6 +1,7 @@
 package ru.bobko.shop.frontend.cli.base;
 
 import ru.bobko.shop.frontend.cli.AddToCardCliCommand;
+import ru.bobko.shop.frontend.cli.ShowAllCliCommand;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.function.Function;
 public interface CliCommand {
   List<CliCommand> registered = Arrays.asList(
     AddToCardCliCommand.INSTANCE,
+    ShowAllCliCommand.INSTANCE,
     HelpCliCommand.INSTANCE
   );
 

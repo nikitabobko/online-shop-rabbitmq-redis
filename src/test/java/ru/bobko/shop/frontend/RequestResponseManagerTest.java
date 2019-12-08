@@ -1,3 +1,4 @@
+// todo remove
 //package ru.bobko.shop.frontend;
 //
 //import jdk.nashorn.internal.codegen.types.Type;

@@ -42,7 +42,7 @@ public class FrontendWarehouse implements Warehouse {
   }
 
   @Override
-  public Map<Good, Integer> showAll() {
+  public Map<Good, Integer> getAll() {
     return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.SHOW_ALL, clientId, null);
       Message response = manager.requestResponseCycle(request);
@@ -54,6 +54,11 @@ public class FrontendWarehouse implements Warehouse {
       Map<Good, Integer> map = gson.fromJson(Objects.requireNonNull(response.additionalMsgNullable), Map.class);
       return map;
     });
+  }
+
+  @Override
+  public int amountOf(Good good) {
+    throw new IllegalStateException("Not implemented");
   }
 
   private static <T> T reactServerDoesntRespondOnInterruptedException(InterruptableSupplier<T> supplier) {

@@ -6,5 +6,6 @@ import java.util.Map;
 
 public interface Warehouse {
   Good getGoodByVendorCodeNullable(String vendorCode);
-  Map<Good, Integer> showAll();
+  Map<Good, Integer> getAll();
+  int amountOf(Good good);
 }
