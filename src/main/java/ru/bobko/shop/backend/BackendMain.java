@@ -1,11 +1,14 @@
 package ru.bobko.shop.backend;
 
 import ru.bobko.shop.backend.di.BackendInjector;
+import ru.bobko.shop.backend.model.BackendUsers;
 import ru.bobko.shop.core.di.Injector;
 import ru.bobko.shop.core.di.InjectorHolder;
+import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.core.model.message.Message;
+import ru.bobko.shop.core.requestresponsecyclemanager.RequestResponseCycleManager;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,17 +18,48 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class BackendMain {
-  private final static ExecutorService pool = Executors.newSingleThreadExecutor();
+  private final static ExecutorService workingPool = Executors.newSingleThreadExecutor();
+  private final static ExecutorService hearthBeatPool = Executors.newSingleThreadExecutor();
 
-  // todo heartbeat
   public static void main(String[] args) {
     InjectorHolder.initInjector(new BackendInjector((message) -> {
-      pool.submit(() -> BackendMain.processIncomingMessage(message));
+      if (message.type == Message.Type.HEARTH_BEAT) {
+        processHeartBeatMessage(message);
+      } else {
+        workingPool.submit(() -> processIncomingMessage(message));
+      }
     }));
+    hearthBeatPool.submit(BackendMain::hearthBeatJob);
     Injector injector = InjectorHolder.getInjector();
     Warehouse warehouse = injector.getWarehouse();
     fillWarehouse(warehouse);
     System.out.println("Up and running");
+  }
+
+  private static void hearthBeatJob() {
+    Injector injector = InjectorHolder.getInjector();
+    BackendUsers users = injector.getUsers();
+    RequestResponseCycleManager requestResponseCycleManager = injector.getRequestResponseCycleManager();
+    while (true) {
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+        System.exit(1);
+      }
+      Set<UserCart> allUsers = users.getAllUsers();
+      for (UserCart user : allUsers) {
+        Message heartBeat = Message.newHearthBeatRequest(user.getClientId());
+        try {
+          requestResponseCycleManager.requestResponseCycle(user.getClientId(), heartBeat);
+        } catch (InterruptedException ex) {
+          if (injector.isDebug()) {
+            System.out.println("User " + user.getClientId() + " doesn't respond. Discarting user's cart");
+          }
+          users.removeUser(user);
+        }
+      }
+    }
   }
 
   private static void fillWarehouse(Warehouse warehouse) {
@@ -38,15 +72,29 @@ public class BackendMain {
     return new HashSet<>(Arrays.asList(members));
   }
 
-  private static void processIncomingMessage(Message message) {
-    Injector injector = InjectorHolder.getInjector();
-    if (message.status == Message.Status.OK && message.type == Message.Type.HEARTH_BEAT) {
-      injector.getRequestResponseCycleManager().notifyResponseCome(message);
+  private static void processHeartBeatMessage(Message message) {
+    assert message.type == Message.Type.HEARTH_BEAT;
+    try {
+      Injector injector = InjectorHolder.getInjector();
+      if (message.status == Message.Status.REQUEST) {
+        message.respondOk().sendTo(injector.getChannel(), message.clientId);
+      } else {
+        injector.getRequestResponseCycleManager().notifyResponseCome(message);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(1);
     }
+  }
+
+  private static void processIncomingMessage(Message message) {
+    assert message.type != Message.Type.HEARTH_BEAT;
+    Injector injector = InjectorHolder.getInjector();
     try {
       message.type.backendProcessRequest(message, injector.getChannel(), injector.getUsers(), injector.getWarehouse());
     } catch (IOException e) {
       e.printStackTrace();
+      System.exit(1);
     }
   }
 }

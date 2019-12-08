@@ -1,6 +1,7 @@
 package ru.bobko.shop.backend.model;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
 
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.*;
 
 public class BackendWarehouse implements Warehouse {
-  private final Jedis jedis;
+  private final JedisPool pool;
 
   private final static String VENDOR_CODE_TO_NAME_REDIS_KEY = "vendor_code_to_name";
   private final static String VENDOR_CODE_TO_PRICE_REDIS_KEY = "vendor_code_to_price";
@@ -19,64 +20,76 @@ public class BackendWarehouse implements Warehouse {
 
   private final static String VENDOR_CODE_TO_AMOUNT = "vendor_code_to_amount";
 
-  public BackendWarehouse(Jedis jedis) {
-    this.jedis = jedis;
+  public BackendWarehouse(JedisPool pool) {
+    this.pool = pool;
   }
 
   @Override
   public Good getGoodByVendorCodeNullable(String vendorCode) {
-    String name = jedis.hget(VENDOR_CODE_TO_NAME_REDIS_KEY, vendorCode);
-    String priceString = jedis.hget(VENDOR_CODE_TO_PRICE_REDIS_KEY, vendorCode);
-    Set<String> categories = jedis.smembers(CATEGORIES_KEY_REDIS_KEY + ":" + vendorCode);
-    if (name == null || priceString == null || categories == null) {
-      return null;
+    try (Jedis jedis = pool.getResource()) {
+      String name = jedis.hget(VENDOR_CODE_TO_NAME_REDIS_KEY, vendorCode);
+      String priceString = jedis.hget(VENDOR_CODE_TO_PRICE_REDIS_KEY, vendorCode);
+      Set<String> categories = jedis.smembers(CATEGORIES_KEY_REDIS_KEY + ":" + vendorCode);
+      if (name == null || priceString == null || categories == null) {
+        return null;
+      }
+      int price = Integer.parseInt(priceString);
+      return new Good(vendorCode, name, price, categories);
     }
-    int price = Integer.parseInt(priceString);
-    return new Good(vendorCode, name, price, categories);
   }
 
   @Override
   public Map<Good, Integer> getAll() {
-    Set<String> members = jedis.hkeys(VENDOR_CODE_TO_NAME_REDIS_KEY);
-    if (members == null) {
-      return Collections.emptyMap();
+    try (Jedis jedis = pool.getResource()) {
+      Set<String> members = jedis.hkeys(VENDOR_CODE_TO_NAME_REDIS_KEY);
+      if (members == null) {
+        return Collections.emptyMap();
+      }
+      List<Good> goods = members.stream().map(this::getGoodByVendorCodeNullable).collect(toList());
+      assert goods.stream().allMatch(Objects::nonNull);
+      return goods.stream().collect(Collectors.toMap(Function.identity(), this::amountOf));
     }
-    List<Good> goods = members.stream().map(this::getGoodByVendorCodeNullable).collect(toList());
-    assert goods.stream().allMatch(Objects::nonNull);
-    return goods.stream().collect(Collectors.toMap(Function.identity(), this::amountOf));
   }
 
   @Override
   public int amountOf(Good good) {
-    String amountString = jedis.hget(VENDOR_CODE_TO_AMOUNT, good.vendorCode);
-    if (amountString == null) {
-      throw new IllegalArgumentException("good isn't valid");
+    try (Jedis jedis = pool.getResource()) {
+      String amountString = jedis.hget(VENDOR_CODE_TO_AMOUNT, good.vendorCode);
+      if (amountString == null) {
+        throw new IllegalArgumentException("good isn't valid");
+      }
+      return Integer.parseInt(amountString);
     }
-    return Integer.parseInt(amountString);
   }
 
   @Override
   public void setAmountOf(Good good, int amount) {
     assert amount >= 0;
-    jedis.hset(VENDOR_CODE_TO_AMOUNT, good.vendorCode, String.valueOf(amount));
+    try (Jedis jedis = pool.getResource()) {
+      jedis.hset(VENDOR_CODE_TO_AMOUNT, good.vendorCode, String.valueOf(amount));
+    }
   }
 
   @Override
   public void addGood(Good good, int count) {
-    jedis.hset(VENDOR_CODE_TO_NAME_REDIS_KEY, good.vendorCode, good.name);
-    jedis.hset(VENDOR_CODE_TO_PRICE_REDIS_KEY, good.vendorCode, String.valueOf(good.price));
-    jedis.sadd(CATEGORIES_KEY_REDIS_KEY + ":" + good.vendorCode, good.categories.toArray(new String[0]));
+    try (Jedis jedis = pool.getResource()) {
+      jedis.hset(VENDOR_CODE_TO_NAME_REDIS_KEY, good.vendorCode, good.name);
+      jedis.hset(VENDOR_CODE_TO_PRICE_REDIS_KEY, good.vendorCode, String.valueOf(good.price));
+      jedis.sadd(CATEGORIES_KEY_REDIS_KEY + ":" + good.vendorCode, good.categories.toArray(new String[0]));
 
-    jedis.hset(VENDOR_CODE_TO_AMOUNT, good.vendorCode, String.valueOf(count));
+      jedis.hset(VENDOR_CODE_TO_AMOUNT, good.vendorCode, String.valueOf(count));
+    }
   }
 
   @Override
   public void clearGood(Good good) {
-    jedis.hdel(VENDOR_CODE_TO_NAME_REDIS_KEY, good.vendorCode);
-    jedis.hdel(VENDOR_CODE_TO_PRICE_REDIS_KEY, good.vendorCode);
-    jedis.del(CATEGORIES_KEY_REDIS_KEY + ":" + good.vendorCode);
+    try (Jedis jedis = pool.getResource()) {
+      jedis.hdel(VENDOR_CODE_TO_NAME_REDIS_KEY, good.vendorCode);
+      jedis.hdel(VENDOR_CODE_TO_PRICE_REDIS_KEY, good.vendorCode);
+      jedis.del(CATEGORIES_KEY_REDIS_KEY + ":" + good.vendorCode);
 
-    jedis.hdel(VENDOR_CODE_TO_AMOUNT, good.vendorCode);
+      jedis.hdel(VENDOR_CODE_TO_AMOUNT, good.vendorCode);
+    }
   }
 
   @Override

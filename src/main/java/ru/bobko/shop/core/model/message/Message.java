@@ -21,7 +21,9 @@ import static java.util.stream.Collectors.toSet;
  */
 public final class Message {
   /**
-   * Session id is unique only for client (aka frontend)
+   * Session id is unique only for client for regular request
+   * <p>
+   * And unique for backend for heart beat
    */
   public final int sessionId;
   public final Type type;
@@ -57,8 +59,8 @@ public final class Message {
     return new Message(uniqueSessionId.incrementAndGet(), type, clientId, Status.REQUEST, additionalMsgNullable);
   }
 
-  public static Message newHearthBeatRequest(String clientId, String additionalMsgNullable) {
-    return new Message(0, Type.HEARTH_BEAT, clientId, Status.REQUEST, additionalMsgNullable);
+  public static Message newHearthBeatRequest(String clientId) {
+    return new Message(uniqueSessionId.incrementAndGet(), Type.HEARTH_BEAT, clientId, Status.REQUEST, null);
   }
 
   public String toJson() {
@@ -109,7 +111,7 @@ public final class Message {
     }, HEARTH_BEAT {
       @Override
       public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
-        request.respondOk().sendTo(channel, request.clientId);
+        throw new IllegalStateException("Hearth beat must be processed by separate thread pool");
       }
     }, GET_GOOD_BY_VENDOR_CODE {
       @Override

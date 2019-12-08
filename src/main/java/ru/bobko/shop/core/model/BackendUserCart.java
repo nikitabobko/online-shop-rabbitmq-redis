@@ -1,6 +1,7 @@
 package ru.bobko.shop.core.model;
 
 import redis.clients.jedis.Jedis;
+import ru.bobko.shop.core.di.InjectorHolder;
 import ru.bobko.shop.core.model.good.Good;
 
 import java.util.Collections;
