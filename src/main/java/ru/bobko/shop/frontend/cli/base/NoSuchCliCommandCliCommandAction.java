@@ -1,25 +1,25 @@
-package ru.bobko.shop.frontend.cli.command.base;
+package ru.bobko.shop.frontend.cli.base;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-public class NoSuchCliCommandAction implements CliCommandAction {
+public class NoSuchCliCommandCliCommandAction implements CliCommandAction {
   private final String actualUserCommand;
 
-  public NoSuchCliCommandAction(String actualUserCommand) {
+  public NoSuchCliCommandCliCommandAction(String actualUserCommand) {
     this.actualUserCommand = actualUserCommand;
   }
 
   @Override
-  public void exec() {
+  public String execAndGetOutput() {
     List<CliCommand> potentialCandidates = CliCommand.registered.stream()
       .filter(it -> it.getCommandName().contains(actualUserCommand))
       .collect(toList());
     if (potentialCandidates.size() == 1) {
-      CliCommandAction.printResponse(potentialCandidates.get(0).getHelp());
+      return "Do you mean?\n\n" + potentialCandidates.get(0).getHelp();
     } else {
-      HelpCliCommand.HelpCliCommandAction.INSTANCE.exec();
+      return HelpCliCommand.INSTANCE.execAndGetOutput();
     }
   }
 }

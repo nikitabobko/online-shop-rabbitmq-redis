@@ -5,9 +5,10 @@ import ru.bobko.shop.core.model.good.Good;
 import java.util.Map;
 
 public interface UserCart {
-  void add(Good good);
-  void removeFromCart(Good good);
-  void buy();
+  String getClientId();
+  boolean add(Good good);
+  boolean removeFromCart(Good good);
+  Map<Good, Integer> buy();
   void discard();
   Map<Good, Integer> getCurrentGoodsInCart();
 }
