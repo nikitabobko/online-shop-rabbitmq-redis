@@ -10,7 +10,7 @@ import ru.bobko.shop.frontend.cli.base.CliCommand;
 
 import static ru.bobko.shop.frontend.cli.base.CliCommand.commandToActionOneCliArgumentNullable;
 
-public enum AddToCardCliCommand implements CliCommand {
+public enum AddToCartCliCommand implements CliCommand {
   INSTANCE;
   @Override
   public String getCommandName() {

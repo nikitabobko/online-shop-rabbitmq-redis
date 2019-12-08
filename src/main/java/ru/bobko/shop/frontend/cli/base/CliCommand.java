@@ -1,6 +1,6 @@
 package ru.bobko.shop.frontend.cli.base;
 
-import ru.bobko.shop.frontend.cli.AddToCardCliCommand;
+import ru.bobko.shop.frontend.cli.AddToCartCliCommand;
 import ru.bobko.shop.frontend.cli.RemoveFromCartCliCommand;
 import ru.bobko.shop.frontend.cli.ShowAllCliCommand;
 import ru.bobko.shop.frontend.cli.ShowCartCliCommand;
@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 public interface CliCommand {
   List<CliCommand> registered = Arrays.asList(
-    AddToCardCliCommand.INSTANCE,
+    AddToCartCliCommand.INSTANCE,
     RemoveFromCartCliCommand.INSTANCE,
     ShowCartCliCommand.INSTANCE,
     ShowAllCliCommand.INSTANCE,
