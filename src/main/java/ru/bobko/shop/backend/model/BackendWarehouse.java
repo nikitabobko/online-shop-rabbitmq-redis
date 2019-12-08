@@ -79,4 +79,9 @@ public class BackendWarehouse implements Warehouse {
 
     jedis.hdel(VENDOR_CODE_TO_AMOUNT, good.vendorCode);
   }
+
+  @Override
+  public Set<String> getCategories() {
+    return getAll().keySet().stream().flatMap(it -> it.categories.stream()).collect(toSet());
+  }
 }

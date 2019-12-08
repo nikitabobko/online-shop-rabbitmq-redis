@@ -1,5 +1,6 @@
 package ru.bobko.shop.frontend.model;
 
+import com.google.gson.Gson;
 import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.core.model.message.Message;
@@ -10,7 +11,10 @@ import ru.bobko.shop.util.GsonUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
 import static ru.bobko.shop.util.FrontendModelUtil.reactServerDoesntRespondOnInterruptedException;
 
 public class FrontendWarehouse implements Warehouse {
@@ -72,5 +76,17 @@ public class FrontendWarehouse implements Warehouse {
   @Override
   public void clearGood(Good good) {
     throw new IllegalStateException("Not allowed for frontend");
+  }
+
+  @Override
+  public Set<String> getCategories() {
+    return reactServerDoesntRespondOnInterruptedException(() -> {
+      Message request = Message.newRequest(Message.Type.LIST_CATEGORIES, clientId, null);
+      Message response = manager.requestResponseCycle(request);
+      if (response.status == Message.Status.NO) {
+        throw new CliException(response.additionalMsgNullable);
+      }
+      return new Gson().<Set<String>>fromJson(response.additionalMsgNullable, Set.class);
+    });
   }
 }
