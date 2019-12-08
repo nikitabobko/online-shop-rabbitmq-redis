@@ -1,6 +1,6 @@
-package ru.bobko.shop.frontend.cli.command.base;
+package ru.bobko.shop.frontend.cli.base;
 
-import ru.bobko.shop.frontend.cli.command.AddToCardCliCommand;
+import ru.bobko.shop.frontend.cli.AddToCardCliCommand;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,21 +23,21 @@ public interface CliCommand {
     return String.format("%s - %s\nUSAGE:\n> %s", getCommandName(), getDescription(), getCommandUsage());
   }
 
-  CliCommandAction commandToActionOrNull(String command);
+  CliCommandAction commandToActionNullable(String command);
 
-  static CliCommandAction lineCommandToAction(String line) {
+  static CliCommandAction commandToAction(String line) {
     String command = line.trim();
     return registered.stream()
-      .map(it -> it.commandToActionOrNull(command))
+      .map(it -> it.commandToActionNullable(command))
       .filter(Objects::nonNull)
       .findFirst()
-      .orElse(new NoSuchCliCommandAction(command));
+      .orElse(new NoSuchCliCommandCliCommandAction(command));
   }
 
-  static CliCommandAction oneCliArgumentCommandToActionOrNull(CliCommand info,
-                                                              String command,
-                                                              Function<String, CliCommandAction> supplier) {
-    String[] split = command.split("\\s*");
+  static CliCommandAction commandToActionOneCliArgumentNullable(CliCommand info,
+                                                                String command,
+                                                                Function<String, CliCommandAction> supplier) {
+    String[] split = command.split("\\s+");
     if (split.length != 2) {
       return null;
     }
@@ -47,7 +47,7 @@ public interface CliCommand {
     return supplier.apply(split[1]);
   }
 
-  static CliCommandAction noCliArgumentCommandToActionOrNull(CliCommand info, String command, CliCommandAction target) {
+  static CliCommandAction commandToActionNoCliArgumentsNullable(CliCommand info, String command, CliCommandAction target) {
     return command.equals(info.getCommandName()) ? target : null;
   }
 }
