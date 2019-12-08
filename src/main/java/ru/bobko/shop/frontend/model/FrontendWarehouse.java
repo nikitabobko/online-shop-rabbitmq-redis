@@ -1,16 +1,17 @@
 package ru.bobko.shop.frontend.model;
 
-import com.google.gson.Gson;
 import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.core.model.message.Message;
 import ru.bobko.shop.core.requestresponsecyclemanager.RequestResponseCycleManager;
 import ru.bobko.shop.frontend.cli.base.CliException;
-import ru.bobko.shop.util.InterruptableSupplier;
+import ru.bobko.shop.util.GsonUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static ru.bobko.shop.util.FrontendModelUtil.reactServerDoesntRespondOnInterruptedException;
 
 public class FrontendWarehouse implements Warehouse {
   private final RequestResponseCycleManager manager;
@@ -49,10 +50,7 @@ public class FrontendWarehouse implements Warehouse {
       if (response.status == Message.Status.NO) {
         throw new CliException(response.additionalMsgNullable);
       }
-      Gson gson = new Gson();
-      @SuppressWarnings("unchecked")
-      Map<Good, Integer> map = gson.fromJson(Objects.requireNonNull(response.additionalMsgNullable), Map.class);
-      return map;
+      return GsonUtil.decodeGoodsMap(response.additionalMsgNullable);
     });
   }
 
@@ -61,11 +59,18 @@ public class FrontendWarehouse implements Warehouse {
     throw new IllegalStateException("Not implemented");
   }
 
-  private static <T> T reactServerDoesntRespondOnInterruptedException(InterruptableSupplier<T> supplier) {
-    try {
-      return supplier.get();
-    } catch (InterruptedException e) {
-      throw new CliException.ServerDoesntRespondCliException();
-    }
+  @Override
+  public void setAmountOf(Good good, int amount) {
+    throw new IllegalStateException("Not allowed for frontend");
+  }
+
+  @Override
+  public void addGood(Good good, int count) {
+    throw new IllegalStateException("Not allowed for frontend");
+  }
+
+  @Override
+  public void clearGood(Good good) {
+    throw new IllegalStateException("Not allowed for frontend");
   }
 }

@@ -2,7 +2,6 @@ package ru.bobko.shop.backend.di;
 
 import com.rabbitmq.client.Channel;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import ru.bobko.shop.backend.model.BackendUsers;
 import ru.bobko.shop.backend.model.BackendWarehouse;
 import ru.bobko.shop.core.di.Injector;
@@ -30,7 +29,7 @@ public class BackendInjector implements Injector {
     warehouse = new BackendWarehouse(jedis);
     RabbitMqRequestResponseCycleManager rabbitMqManager = new RabbitMqRequestResponseCycleManager(channel);
     manager = RequestResponseCycleManagerWithTimeout.wrap(rabbitMqManager, 30, TimeUnit.SECONDS);
-    users = new BackendUsers(jedis);
+    users = new BackendUsers(jedis, warehouse);
   }
 
   @Override
