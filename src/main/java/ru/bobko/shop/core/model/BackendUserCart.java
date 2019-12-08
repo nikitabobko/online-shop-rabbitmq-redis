@@ -13,7 +13,7 @@ public class BackendUserCart implements UserCart {
   private final String clientId;
   private final Warehouse warehouse;
 
-  private static String CURRENT_GOODS_IN_CART_REDIS_KEY = "client_id_to_vendor_codes";
+  private final static String CURRENT_GOODS_IN_CART_REDIS_KEY = "client_id_to_vendor_codes";
 
   public BackendUserCart(Jedis jedis, String clientId, Warehouse warehouse) {
     this.jedis = jedis;

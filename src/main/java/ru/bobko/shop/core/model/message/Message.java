@@ -45,10 +45,6 @@ public final class Message {
     return respondOk(null);
   }
 
-  public Message respondNo() {
-    return respondNo(null);
-  }
-
   public Message respondOk(String additionalMsgNullable) {
     return new Message(sessionId, type, clientId, Status.OK, additionalMsgNullable);
   }
