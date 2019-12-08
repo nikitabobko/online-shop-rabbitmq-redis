@@ -29,15 +29,15 @@ public class RabbitMqRequestResponseCycleManager implements RequestResponseCycle
   }
 
   @Override
-  public Message requestResponseCycle(Message request) throws InterruptedException {
+  public Message requestResponseCycle(String clientId, Message msg) throws InterruptedException {
     try {
-      request.sendToBackend(rabbitMqChannel);
+      msg.sendTo(rabbitMqChannel, clientId);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);
     }
     synchronized (responsesHasNewKey) {
-      int sessionId = request.sessionId;
+      int sessionId = msg.sessionId;
       while (!responses.containsKey(sessionId)) {
         responsesHasNewKey.wait();
       }
