@@ -7,6 +7,7 @@ import ru.bobko.shop.core.di.InjectorHolder;
 import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
+import ru.bobko.shop.util.GsonUtil;
 
 import java.io.IOException;
 import java.util.Map;
@@ -118,7 +119,13 @@ public final class Message {
       @Override
       public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
         Map<Good, Integer> all = warehouse.getAll();
-        request.respondOk(new Gson().toJson(all)).sendTo(channel, request.clientId);
+        request.respondOk(GsonUtil.encodeGoodsMap(all)).sendTo(channel, request.clientId);
+      }
+    }, SHOW_CART {
+      @Override
+      public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
+        UserCart userCart = users.getOrRegisterUserById(request.clientId);
+        request.respondOk(GsonUtil.encodeGoodsMap(userCart.getCurrentGoodsInCart())).sendTo(channel, request.clientId);
       }
     };
 

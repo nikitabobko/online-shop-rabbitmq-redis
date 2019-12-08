@@ -2,32 +2,30 @@ package ru.bobko.shop.frontend.cli;
 
 import ru.bobko.shop.core.di.Injector;
 import ru.bobko.shop.core.di.InjectorHolder;
-import ru.bobko.shop.core.model.Warehouse;
+import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.frontend.cli.base.CliCommand;
 import ru.bobko.shop.frontend.cli.base.CliCommandAction;
 import ru.bobko.shop.util.CollectionUtil;
 
-import java.util.Comparator;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public enum  ShowAllCliCommand implements CliCommand, CliCommandAction {
+public enum ShowCartCliCommand implements CliCommand, CliCommandAction {
   INSTANCE;
 
   @Override
   public String getCommandName() {
-    return "show_all";
+    return "show_cart";
   }
 
   @Override
   public String getDescription() {
-    return "Shows all available goods";
+    return "Shows current cart";
   }
 
   @Override
   public String getCommandUsage() {
-    return getCommandName();
+    return "show_cart";
   }
 
   @Override
@@ -38,11 +36,11 @@ public enum  ShowAllCliCommand implements CliCommand, CliCommandAction {
   @Override
   public String execAndGetOutput() {
     Injector injector = InjectorHolder.getInjector();
-    Warehouse warehouse = injector.getWarehouse();
-    Map<Good, Integer> all = warehouse.getAll();
-    if (all.isEmpty()) {
-      return "No more goods left :(";
+    UserCart cart = injector.getCart();
+    Map<Good, Integer> inCart = cart.getCurrentGoodsInCart();
+    if (inCart.isEmpty()) {
+      return "Cart is empty";
     }
-    return CollectionUtil.toString(all);
+    return CollectionUtil.toString(inCart);
   }
 }

@@ -5,9 +5,12 @@ import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.core.model.message.Message;
 import ru.bobko.shop.core.requestresponsecyclemanager.RequestResponseCycleManager;
 import ru.bobko.shop.frontend.cli.base.CliException;
+import ru.bobko.shop.util.GsonUtil;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static ru.bobko.shop.util.FrontendModelUtil.reactServerDoesntRespondOnInterruptedException;
 
 public class FrontendUserCart implements UserCart {
   private final RequestResponseCycleManager manager;
@@ -25,24 +28,20 @@ public class FrontendUserCart implements UserCart {
 
   @Override
   public boolean add(Good good) {
-    try {
+    return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.ADD_TO_CART, getClientId(), good.vendorCode);
       Message response = manager.requestResponseCycle(request);
       return response.status == Message.Status.OK;
-    } catch (InterruptedException e) {
-      throw new CliException.ServerDoesntRespondCliException();
-    }
+    });
   }
 
   @Override
   public boolean removeFromCart(Good good) {
-    try {
+    return reactServerDoesntRespondOnInterruptedException(() -> {
       Message request = Message.newRequest(Message.Type.REM_FROM_CART, getClientId(), good.vendorCode);
       Message response = manager.requestResponseCycle(request);
       return response.status == Message.Status.OK;
-    } catch (InterruptedException e) {
-      throw new CliException.ServerDoesntRespondCliException();
-    }
+    });
   }
 
   @Override
@@ -57,6 +56,13 @@ public class FrontendUserCart implements UserCart {
 
   @Override
   public Map<Good, Integer> getCurrentGoodsInCart() {
-    return null;
+    return reactServerDoesntRespondOnInterruptedException(() -> {
+      Message request = Message.newRequest(Message.Type.SHOW_CART, getClientId(), null);
+      Message response = manager.requestResponseCycle(request);
+      if (response.status != Message.Status.OK) {
+        throw new CliException(response.additionalMsgNullable);
+      }
+      return GsonUtil.decodeGoodsMap(response.additionalMsgNullable);
+    });
   }
 }

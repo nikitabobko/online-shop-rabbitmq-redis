@@ -15,9 +15,7 @@ public class BackendWarehouse implements Warehouse {
 
   private final static String VENDOR_CODE_TO_NAME_REDIS_KEY = "vendor_code_to_name";
   private final static String VENDOR_CODE_TO_PRICE_REDIS_KEY = "vendor_code_to_price";
-  private final static String VENDOR_CODE_TO_CATEGORIES_SET_KEY_REDIS_KEY = "vendor_code_to_price";
-
-  private final static String VENDOR_CODES_REDIS_KEY = "vendor_codes";
+  private final static String CATEGORIES_KEY_REDIS_KEY = "good_categories";
 
   private final static String VENDOR_CODE_TO_AMOUNT = "vendor_code_to_amount";
 
@@ -29,12 +27,8 @@ public class BackendWarehouse implements Warehouse {
   public Good getGoodByVendorCodeNullable(String vendorCode) {
     String name = jedis.hget(VENDOR_CODE_TO_NAME_REDIS_KEY, vendorCode);
     String priceString = jedis.hget(VENDOR_CODE_TO_PRICE_REDIS_KEY, vendorCode);
-    String setKey = jedis.hget(VENDOR_CODE_TO_CATEGORIES_SET_KEY_REDIS_KEY, vendorCode);
-    if (name == null || priceString == null || setKey == null) {
-      return null;
-    }
-    Set<String> categories = jedis.smembers(setKey);
-    if (categories == null) {
+    Set<String> categories = jedis.smembers(CATEGORIES_KEY_REDIS_KEY + ":" + vendorCode);
+    if (name == null || priceString == null || categories == null) {
       return null;
     }
     int price = Integer.parseInt(priceString);
@@ -43,7 +37,7 @@ public class BackendWarehouse implements Warehouse {
 
   @Override
   public Map<Good, Integer> getAll() {
-    Set<String> members = jedis.smembers(VENDOR_CODES_REDIS_KEY);
+    Set<String> members = jedis.hkeys(VENDOR_CODE_TO_NAME_REDIS_KEY);
     if (members == null) {
       return Collections.emptyMap();
     }
@@ -60,5 +54,29 @@ public class BackendWarehouse implements Warehouse {
       throw new IllegalArgumentException("good isn't valid");
     }
     return Integer.parseInt(amountString);
+  }
+
+  @Override
+  public void setAmountOf(Good good, int amount) {
+    assert amount >= 0;
+    jedis.hset(VENDOR_CODE_TO_AMOUNT, good.vendorCode, String.valueOf(amount));
+  }
+
+  @Override
+  public void addGood(Good good, int count) {
+    jedis.hset(VENDOR_CODE_TO_NAME_REDIS_KEY, good.vendorCode, good.name);
+    jedis.hset(VENDOR_CODE_TO_PRICE_REDIS_KEY, good.vendorCode, String.valueOf(good.price));
+    jedis.sadd(CATEGORIES_KEY_REDIS_KEY + ":" + good.vendorCode, good.categories.toArray(new String[0]));
+
+    jedis.hset(VENDOR_CODE_TO_AMOUNT, good.vendorCode, String.valueOf(count));
+  }
+
+  @Override
+  public void clearGood(Good good) {
+    jedis.hdel(VENDOR_CODE_TO_NAME_REDIS_KEY, good.vendorCode);
+    jedis.hdel(VENDOR_CODE_TO_PRICE_REDIS_KEY, good.vendorCode);
+    jedis.del(CATEGORIES_KEY_REDIS_KEY + ":" + good.vendorCode);
+
+    jedis.hdel(VENDOR_CODE_TO_AMOUNT, good.vendorCode);
   }
 }
