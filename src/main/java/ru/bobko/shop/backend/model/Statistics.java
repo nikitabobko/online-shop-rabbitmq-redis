@@ -55,9 +55,13 @@ public class Statistics {
         .map(it -> it.getKey().price * it.getValue())
         .reduce(Integer::sum)
         .orElse(0);
-      Integer count = inCart.values().stream().reduce(Integer::sum).orElse(0);
-      jedis.set(CART_COUNT_REDIS_KEY + ":" + Mode.WHO_BOUGHT, String.valueOf(count));
-      jedis.set(CART_PRICE_REDIS_KEY + ":" + Mode.WHO_BOUGHT, String.valueOf(cartPrice));
+      int countToAdd = inCart.values().stream().reduce(Integer::sum).orElse(0);
+
+      int existingCount = Optional.ofNullable(jedis.get(CART_COUNT_REDIS_KEY + ":" + Mode.WHO_BOUGHT)).map(Integer::parseInt).orElse(0);
+      int existingPrice = Optional.ofNullable(jedis.get(CART_PRICE_REDIS_KEY + ":" + Mode.WHO_BOUGHT)).map(Integer::parseInt).orElse(0);
+
+      jedis.set(CART_COUNT_REDIS_KEY + ":" + Mode.WHO_BOUGHT, String.valueOf(existingCount + countToAdd));
+      jedis.set(CART_PRICE_REDIS_KEY + ":" + Mode.WHO_BOUGHT, String.valueOf(existingPrice + cartPrice));
 
       jedis.sadd(USERS_THAT_BOUGHT_SMTH_REDIS_KEY, user.getClientId());
 
