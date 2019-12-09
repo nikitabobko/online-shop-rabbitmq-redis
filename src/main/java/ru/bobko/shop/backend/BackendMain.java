@@ -87,11 +87,13 @@ public class BackendMain {
     }
   }
 
-  private static void processIncomingMessage(Message message) {
-    assert message.type != Message.Type.HEARTH_BEAT;
+  private static void processIncomingMessage(Message request) {
+    assert request.type != Message.Type.HEARTH_BEAT;
     Injector injector = InjectorHolder.getInjector();
     try {
-      message.type.backendProcessRequest(message, injector.getChannel(), injector.getUsers(), injector.getWarehouse());
+      BackendUsers users = injector.getUsers();
+      users.getOrRegisterUserById(request.clientId); // Register every incomming user for statistics
+      request.type.backendProcessRequest(request, injector.getChannel(), users, injector.getWarehouse());
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(1);
