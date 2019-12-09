@@ -1,6 +1,7 @@
 package ru.bobko.shop.core.di;
 
 import com.rabbitmq.client.*;
+import ru.bobko.shop.backend.model.Statistics;
 import ru.bobko.shop.backend.model.BackendUsers;
 import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.Warehouse;
@@ -19,6 +20,7 @@ public interface Injector {
   RequestResponseCycleManager getRequestResponseCycleManager();
   BackendUsers getUsers();
   boolean isDebug();
+  Statistics getStatistics();
 
   // protected
   static ChannelAndQueueNamePair initChannel(String queueName, Consumer<Message> incomingRabbitMqMsgConsumer) {

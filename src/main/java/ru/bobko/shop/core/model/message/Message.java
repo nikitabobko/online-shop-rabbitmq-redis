@@ -2,16 +2,18 @@ package ru.bobko.shop.core.model.message;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
+import ru.bobko.shop.backend.model.Statistics;
 import ru.bobko.shop.backend.model.BackendUsers;
+import ru.bobko.shop.core.di.Injector;
 import ru.bobko.shop.core.di.InjectorHolder;
 import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.Warehouse;
 import ru.bobko.shop.core.model.good.Good;
 import ru.bobko.shop.util.GsonUtil;
+import ru.bobko.shop.util.Pair;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.Collectors.toSet;
@@ -139,7 +141,12 @@ public final class Message {
       @Override
       public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
         UserCart user = users.getOrRegisterUserById(request.clientId);
-        request.respondOk(GsonUtil.encodeGoodsMap(user.buy())).sendTo(channel, request.clientId);
+        Map<Good, Integer> inCart = user.buy();
+        request.respondOk(GsonUtil.encodeGoodsMap(inCart)).sendTo(channel, request.clientId);
+
+        Injector injector = InjectorHolder.getInjector();
+        Statistics statistics = injector.getStatistics();
+        statistics.reportNewBuy(user, inCart);
       }
     }, DISCARD {
       @Override
@@ -161,6 +168,19 @@ public final class Message {
           .map(gson::toJson)
           .collect(toSet());
         request.respondOk(gson.toJson(selectedCategory)).sendTo(channel, request.clientId);
+      }
+    }, STATISTICS {
+      @Override
+      public void backendProcessRequest(Message request, Channel channel, BackendUsers users, Warehouse warehouse) throws IOException {
+        Injector injector = InjectorHolder.getInjector();
+        Statistics statistics = injector.getStatistics();
+        Map<String, Double> stat = new HashMap<>();
+        for (Statistics.Mode mode : Statistics.Mode.values()) {
+          stat.put("Average cart price " + mode.name().toLowerCase(), statistics.averageCartPrice(mode));
+          stat.put("Count of clients " + mode.name().toLowerCase(), (double) statistics.countOfClients(mode));
+        }
+        stat.put("Average count of different goods", statistics.averageCountOfDifferentGoods());
+        request.respondOk(new Gson().toJson(stat)).sendTo(channel, request.clientId);
       }
     };
 
