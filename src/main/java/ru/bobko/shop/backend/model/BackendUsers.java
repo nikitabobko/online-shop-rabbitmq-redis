@@ -14,10 +14,12 @@ public class BackendUsers {
   private final JedisPool pool;
   private final static String CLIENT_IDS_REDIS_KEY = "client_ids";
   private final Warehouse warehouse;
+  private final Statistics statistics;
 
-  public BackendUsers(JedisPool pool, Warehouse warehouse) {
+  public BackendUsers(JedisPool pool, Warehouse warehouse, Statistics statistics) {
     this.pool = pool;
     this.warehouse = warehouse;
+    this.statistics = statistics;
   }
 
   public Set<UserCart> getAllUsers() {
@@ -37,6 +39,7 @@ public class BackendUsers {
     try (Jedis jedis = pool.getResource()) {
       jedis.srem(CLIENT_IDS_REDIS_KEY, user.getClientId());
     }
+    statistics.reportUserRemoved(user);
   }
 
   public UserCart getOrRegisterUserById(String id) {

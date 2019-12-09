@@ -2,6 +2,7 @@ package ru.bobko.shop.frontend.di;
 
 import com.rabbitmq.client.Channel;
 import ru.bobko.shop.backend.model.BackendUsers;
+import ru.bobko.shop.backend.model.Statistics;
 import ru.bobko.shop.core.requestresponsecyclemanager.RabbitMqRequestResponseCycleManager;
 import ru.bobko.shop.core.di.Injector;
 import ru.bobko.shop.core.model.UserCart;
@@ -59,5 +60,10 @@ public class FrontendInjector implements Injector {
   @Override
   public boolean isDebug() {
     return false;
+  }
+
+  @Override
+  public Statistics getStatistics() {
+    throw new IllegalStateException("Doesn't make sense for frontend");
   }
 }

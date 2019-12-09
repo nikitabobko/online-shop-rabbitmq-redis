@@ -14,6 +14,7 @@ public interface CliCommand {
     ShowCartCliCommand.INSTANCE,
     BuyCliCommand.INSTANCE,
     ShowCategoryCliCommand.INSTANCE,
+    StatisticsCliCommand.INSTANCE,
     ListCategoriesCliCommand.INSTANCE,
     DiscardCliCommand.INSTANCE,
     ShowAllCliCommand.INSTANCE,
