@@ -2,7 +2,6 @@ package ru.bobko.shop.backend.model;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import ru.bobko.shop.core.model.BackendUserCart;
 import ru.bobko.shop.core.model.UserCart;
 import ru.bobko.shop.core.model.Warehouse;
 
